@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, List, ListItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
 import { useBetStore } from '../store/useBetStore';
-import { SportsSoccer, TrendingUp, AccountBalance } from '@mui/icons-material';
+import { SportsSoccer, TrendingUp, AccountBalance, CheckCircle, Cancel } from '@mui/icons-material';
 
 const Home: React.FC = () => {
   const { bets, getStats } = useBetStore();
@@ -10,6 +10,12 @@ const Home: React.FC = () => {
   const activeBets = bets.filter(bet => bet.status === 'Pending').length;
   const totalProfit = stats.profit;
   const totalBalance = stats.totalWinnings;
+
+  // Obter as últimas 5 apostas concluídas (ganhas ou perdidas)
+  const lastCompletedBets = bets
+    .filter(bet => bet.status !== 'Pending')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 5);
 
   const cards = [
     {
@@ -32,10 +38,29 @@ const Home: React.FC = () => {
     }
   ];
 
+  const getSportName = (sport: string) => {
+    switch (sport) {
+      case 'Soccer': return 'Futebol';
+      case 'Basketball': return 'Basquete';
+      case 'Tennis': return 'Tênis';
+      case 'Volleyball': return 'Vôlei';
+      case 'Other': return 'Outro';
+      default: return sport;
+    }
+  };
+
+  const getBetTypeName = (type: string) => {
+    switch (type) {
+      case 'Single': return 'Simples';
+      case 'Multiple': return 'Múltipla';
+      default: return type;
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Dashboard de Apostas
+        Painel de Controle
       </Typography>
       <Typography variant="body1" sx={{ mb: 4 }}>
         Bem-vindo ao seu painel de gerenciamento de apostas.
@@ -70,6 +95,58 @@ const Home: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      <Card sx={{ mt: 4 }}>
+        <CardContent>
+          <Typography variant="h5" component="h2" gutterBottom>
+            Apostas Recentes
+          </Typography>
+          <List>
+            {lastCompletedBets.length > 0 ? (
+              lastCompletedBets.map((bet, index) => (
+                <React.Fragment key={bet.id}>
+                  <ListItem>
+                    <ListItemIcon>
+                      {bet.status === 'Won' ? (
+                        <CheckCircle sx={{ color: 'success.main' }} />
+                      ) : (
+                        <Cancel sx={{ color: 'error.main' }} />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body1">
+                            {getSportName(bet.sport)} - {getBetTypeName(bet.betType)}
+                          </Typography>
+                          <Typography variant="body1" sx={{ color: bet.status === 'Won' ? 'success.main' : 'error.main' }}>
+                            {bet.status === 'Won' ? `+R$ ${(bet.amount * bet.odd).toFixed(2)}` : `-R$ ${bet.amount.toFixed(2)}`}
+                          </Typography>
+                        </Box>
+                      }
+                      secondary={
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {new Date(bet.date).toLocaleDateString('pt-BR')}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Odd: {bet.odd.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                  {index < lastCompletedBets.length - 1 && <Divider />}
+                </React.Fragment>
+              ))
+            ) : (
+              <ListItem>
+                <ListItemText primary="Nenhuma aposta concluída ainda" />
+              </ListItem>
+            )}
+          </List>
+        </CardContent>
+      </Card>
     </Box>
   );
 };

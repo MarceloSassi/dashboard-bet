@@ -53,10 +53,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const menuItems = [
     { text: 'Início', icon: <HomeIcon />, path: '/' },
+    { text: 'Nova Aposta', icon: <AddIcon />, path: '/add-bet' },
     { text: 'Apostas Ativas', icon: <SportsIcon />, path: '/active-bets' },
     { text: 'Histórico', icon: <HistoryIcon />, path: '/history' },
     { text: 'Estatísticas', icon: <BarChartIcon />, path: '/statistics' },
-    { text: 'Nova Aposta', icon: <AddIcon />, path: '/add-bet' },
   ];
 
   const drawer = (
@@ -94,7 +94,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           startIcon={<DeleteIcon />}
           onClick={() => setOpenDialog(true)}
         >
-          Resetar Dados
+          Limpar Dados
         </Button>
       </Box>
     </Box>
@@ -162,10 +162,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Box>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Confirmar Reset</DialogTitle>
+        <DialogTitle>Confirmar Limpeza</DialogTitle>
         <DialogContent>
           <Typography>
-            Tem certeza que deseja resetar todos os dados? Esta ação irá:
+            Tem certeza que deseja limpar todos os dados? Esta ação irá:
           </Typography>
           <ul>
             <li>Excluir todo o histórico de apostas</li>
@@ -176,7 +176,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
           <Button onClick={handleReset} color="error" variant="contained">
-            Confirmar Reset
+            Confirmar Limpeza
           </Button>
         </DialogActions>
       </Dialog>

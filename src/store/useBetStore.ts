@@ -31,7 +31,7 @@ const validateBet = (bet: any): bet is Bet => {
     typeof bet.sport === 'string' &&
     ['Soccer', 'Basketball', 'Tennis', 'Volleyball', 'Other'].includes(bet.sport) &&
     typeof bet.betType === 'string' &&
-    ['Single', 'Multiple', 'System'].includes(bet.betType) &&
+    ['Single', 'Multiple'].includes(bet.betType) &&
     typeof bet.odd === 'number' &&
     typeof bet.amount === 'number' &&
     typeof bet.status === 'string' &&

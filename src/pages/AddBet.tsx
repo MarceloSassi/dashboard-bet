@@ -110,9 +110,8 @@ const AddBet: React.FC = () => {
                   onChange={handleChange('betType')}
                   required
                 >
-                  <MenuItem value="Single">Single</MenuItem>
-                  <MenuItem value="Multiple">Multiple</MenuItem>
-                  <MenuItem value="System">System</MenuItem>
+                  <MenuItem value="Single">Simples</MenuItem>
+                  <MenuItem value="Multiple">Múltipla</MenuItem>
                 </TextField>
               </Grid>
 

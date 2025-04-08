@@ -11,6 +11,7 @@ import {
   Select,
   SelectChangeEvent,
   MenuItem,
+  useTheme,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -20,8 +21,10 @@ import { ResponsivePie } from '@nivo/pie';
 import { useBetStore } from '../store/useBetStore';
 import { format } from 'date-fns';
 import { Bet, Sport } from '../types/bet';
+import { SportsSoccer, TrendingUp, AccountBalance, BarChart, Timeline } from '@mui/icons-material';
 
 const Statistics: React.FC = () => {
+  const theme = useTheme();
   const [bets, setBets] = useState<Bet[]>([]);
   const [stats, setStats] = useState({
     totalBets: 0,
@@ -115,6 +118,22 @@ const Statistics: React.FC = () => {
     return acc;
   }, [] as { id: string; label: string; value: number }[]);
 
+  // Cálculo da odd média
+  const averageOdd = bets.length > 0
+    ? bets.reduce((sum, bet) => sum + bet.odd, 0) / bets.length
+    : 0;
+
+  const getSportName = (sport: string) => {
+    switch (sport) {
+      case 'Soccer': return 'Futebol';
+      case 'Basketball': return 'Basquete';
+      case 'Tennis': return 'Tênis';
+      case 'Volleyball': return 'Vôlei';
+      case 'Other': return 'Outro';
+      default: return sport;
+    }
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
       <Box sx={{ mb: 2 }}>
@@ -174,34 +193,13 @@ const Statistics: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Lucro Total
-              </Typography>
-              <Typography variant="h4" color={stats.profit >= 0 ? 'success.main' : 'error.main'}>
-                R$ {stats.profit.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Taxa de Vitória
-              </Typography>
-              <Typography variant="h4">
-                {stats.winRate.toFixed(1)}%
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total de Apostas
-              </Typography>
-              <Typography variant="h4">
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <SportsSoccer sx={{ fontSize: 40, color: 'primary.main' }} />
+                <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+                  Total de Apostas
+                </Typography>
+              </Box>
+              <Typography variant="h4" component="div">
                 {stats.totalBets}
               </Typography>
             </CardContent>
@@ -210,11 +208,44 @@ const Statistics: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total Apostado
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <TrendingUp sx={{ fontSize: 40, color: 'success.main' }} />
+                <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+                  Apostas Ganhas
+                </Typography>
+              </Box>
+              <Typography variant="h4" component="div" sx={{ color: 'success.main' }}>
+                {stats.totalWon}
               </Typography>
-              <Typography variant="h4">
-                R$ {stats.totalAmount.toFixed(2)}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <AccountBalance sx={{ fontSize: 40, color: 'error.main' }} />
+                <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+                  Apostas Perdidas
+                </Typography>
+              </Box>
+              <Typography variant="h4" component="div" sx={{ color: 'error.main' }}>
+                {stats.totalLost}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <BarChart sx={{ fontSize: 40, color: 'primary.main' }} />
+                <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+                  Taxa de Acerto
+                </Typography>
+              </Box>
+              <Typography variant="h4" component="div">
+                {stats.winRate.toFixed(1)}%
               </Typography>
             </CardContent>
           </Card>
@@ -314,8 +345,8 @@ const Statistics: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12}>
-          <Card>
+        <Grid item xs={12} md={6}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Distribuição por Esporte
@@ -323,37 +354,54 @@ const Statistics: React.FC = () => {
               <Box sx={{ height: 200 }}>
                 <ResponsivePie
                   data={sportDistribution}
-                  margin={{ top: 10, right: 20, bottom: 50, left: 20 }}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
                   innerRadius={0.5}
                   padAngle={0.7}
                   cornerRadius={3}
                   activeOuterRadiusOffset={8}
+                  colors={[
+                    theme.palette.primary.main,
+                    theme.palette.secondary.main,
+                    theme.palette.success.main,
+                    theme.palette.error.main,
+                    theme.palette.warning.main,
+                  ]}
                   borderWidth={1}
                   borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
                   arcLinkLabelsSkipAngle={10}
-                  arcLinkLabelsTextColor="#333333"
+                  arcLinkLabelsTextColor={theme.palette.text.primary}
                   arcLinkLabelsThickness={2}
                   arcLinkLabelsColor={{ from: 'color' }}
                   arcLabelsSkipAngle={10}
                   arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-                  legends={[
-                    {
-                      anchor: 'bottom',
-                      direction: 'row',
-                      justify: false,
-                      translateY: 50,
-                      itemsSpacing: 0,
-                      itemWidth: 100,
-                      itemHeight: 18,
-                      itemTextColor: '#999',
-                      itemDirection: 'left-to-right',
-                      itemOpacity: 1,
-                      symbolSize: 18,
-                      symbolShape: 'circle',
-                    },
-                  ]}
+                  tooltip={({ datum }) => (
+                    <Box sx={{ bgcolor: 'background.paper', p: 1, borderRadius: 1 }}>
+                      <Typography variant="body2">
+                        {getSportName(datum.id.toString())}: {datum.value} apostas
+                      </Typography>
+                    </Box>
+                  )}
                 />
               </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Timeline sx={{ fontSize: 40, color: 'primary.main' }} />
+                <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+                  Odd Média
+                </Typography>
+              </Box>
+              <Typography variant="h4" component="div">
+                {averageOdd.toFixed(2)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Média das odds de todas as apostas realizadas
+              </Typography>
             </CardContent>
           </Card>
         </Grid>

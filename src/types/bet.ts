@@ -1,6 +1,6 @@
 export type Sport = 'Soccer' | 'Basketball' | 'Tennis' | 'Volleyball' | 'Other';
 
-export type BetType = 'Single' | 'Multiple' | 'System';
+export type BetType = 'Single' | 'Multiple';
 
 export type BetStatus = 'Pending' | 'Won' | 'Lost';
 
