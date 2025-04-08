@@ -1,15 +1,19 @@
 import React from 'react';
 import { Box, Typography, Grid, Card, CardContent, List, ListItem, ListItemText, ListItemIcon, Divider } from '@mui/material';
 import { useBetStore } from '../store/useBetStore';
+import { useBankStore } from '../store/useBankStore';
 import { SportsSoccer, TrendingUp, AccountBalance, CheckCircle, Cancel } from '@mui/icons-material';
+import { format } from 'date-fns';
 
 const Home: React.FC = () => {
   const { bets, getStats } = useBetStore();
+  const { getStats: getBankStats } = useBankStore();
   const stats = getStats();
+  const bankStats = getBankStats();
 
   const activeBets = bets.filter(bet => bet.status === 'Pending').length;
-  const totalProfit = stats.profit;
-  const totalBalance = stats.totalWinnings;
+  const totalProfit = bankStats.totalProfit;
+  const totalBalance = bankStats.totalBalance;
 
   // Obter as últimas 5 apostas concluídas (ganhas ou perdidas)
   const lastCompletedBets = bets
@@ -22,7 +26,7 @@ const Home: React.FC = () => {
       title: 'Apostas Ativas',
       value: activeBets,
       icon: <SportsSoccer sx={{ fontSize: 40, color: 'primary.main' }} />,
-      color: '#1976d2'
+      color: '#1B5E20'
     },
     {
       title: 'Lucro Total',
@@ -34,7 +38,7 @@ const Home: React.FC = () => {
       title: 'Saldo Total',
       value: `R$ ${totalBalance.toFixed(2)}`,
       icon: <AccountBalance sx={{ fontSize: 40, color: 'primary.main' }} />,
-      color: '#1976d2'
+      color: '#1B5E20'
     }
   ];
 
@@ -98,53 +102,49 @@ const Home: React.FC = () => {
 
       <Card sx={{ mt: 4 }}>
         <CardContent>
-          <Typography variant="h5" component="h2" gutterBottom>
-            Apostas Recentes
+          <Typography variant="h6" gutterBottom>
+            Últimas Apostas Concluídas
           </Typography>
-          <List>
-            {lastCompletedBets.length > 0 ? (
-              lastCompletedBets.map((bet, index) => (
+          {lastCompletedBets.length === 0 ? (
+            <Typography variant="body1" color="textSecondary">
+              Nenhuma aposta concluída ainda.
+            </Typography>
+          ) : (
+            <List>
+              {lastCompletedBets.map((bet) => (
                 <React.Fragment key={bet.id}>
                   <ListItem>
                     <ListItemIcon>
                       {bet.status === 'Won' ? (
-                        <CheckCircle sx={{ color: 'success.main' }} />
+                        <CheckCircle color="success" />
                       ) : (
-                        <Cancel sx={{ color: 'error.main' }} />
+                        <Cancel color="error" />
                       )}
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Typography variant="body1">
                             {getSportName(bet.sport)} - {getBetTypeName(bet.betType)}
                           </Typography>
-                          <Typography variant="body1" sx={{ color: bet.status === 'Won' ? 'success.main' : 'error.main' }}>
-                            {bet.status === 'Won' ? `+R$ ${(bet.amount * bet.odd).toFixed(2)}` : `-R$ ${bet.amount.toFixed(2)}`}
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              color: bet.status === 'Won' ? 'success.main' : 'error.main',
+                            }}
+                          >
+                            {bet.status === 'Won' ? '+' : '-'} R$ {bet.amount.toFixed(2)}
                           </Typography>
                         </Box>
                       }
-                      secondary={
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body2" color="text.secondary">
-                            {new Date(bet.date).toLocaleDateString('pt-BR')}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Odd: {bet.odd.toFixed(2)}
-                          </Typography>
-                        </Box>
-                      }
+                      secondary={format(new Date(bet.date), 'dd/MM/yyyy')}
                     />
                   </ListItem>
-                  {index < lastCompletedBets.length - 1 && <Divider />}
+                  <Divider />
                 </React.Fragment>
-              ))
-            ) : (
-              <ListItem>
-                <ListItemText primary="Nenhuma aposta concluída ainda" />
-              </ListItem>
-            )}
-          </List>
+              ))}
+            </List>
+          )}
         </CardContent>
       </Card>
     </Box>

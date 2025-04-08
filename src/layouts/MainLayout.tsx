@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Alert,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -28,8 +29,12 @@ import {
   BarChart as BarChartIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  AccountBalance as AccountBalanceIcon,
+  Assessment as AssessmentIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useBetStore } from '../store/useBetStore';
+import { useBankStore } from '../store/useBankStore';
 
 const drawerWidth = 240;
 
@@ -37,18 +42,23 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { resetBets } = useBetStore();
+  const { clearBets } = useBetStore();
+  const { clearTransactions } = useBankStore();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleReset = () => {
-    resetBets();
-    setOpenDialog(false);
+  const handleClearData = () => {
+    clearBets();
+    clearTransactions();
+    setIsDialogOpen(false);
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   const menuItems = [
@@ -57,6 +67,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { text: 'Apostas Ativas', icon: <SportsIcon />, path: '/active-bets' },
     { text: 'Histórico', icon: <HistoryIcon />, path: '/history' },
     { text: 'Estatísticas', icon: <BarChartIcon />, path: '/statistics' },
+    { text: 'Banco', icon: <AccountBalanceIcon />, path: '/bank' },
+    { text: 'Configurações', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   const drawer = (
@@ -92,7 +104,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           variant="outlined"
           color="error"
           startIcon={<DeleteIcon />}
-          onClick={() => setOpenDialog(true)}
+          onClick={() => setIsDialogOpen(true)}
         >
           Limpar Dados
         </Button>
@@ -158,25 +170,31 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           minHeight: '100vh',
         }}
       >
+        <Toolbar />
+        {showSuccess && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Todos os dados foram limpos com sucesso!
+          </Alert>
+        )}
         {children}
       </Box>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Confirmar Limpeza</DialogTitle>
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle>Confirmar Limpeza de Dados</DialogTitle>
         <DialogContent>
           <Typography>
-            Tem certeza que deseja limpar todos os dados? Esta ação irá:
+            Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita e irá:
           </Typography>
           <ul>
-            <li>Excluir todo o histórico de apostas</li>
-            <li>Limpar todas as estatísticas</li>
-            <li>Esta ação não pode ser desfeita</li>
+            <li>Remover todas as apostas</li>
+            <li>Remover todas as transações bancárias</li>
+            <li>Zerar todas as estatísticas</li>
           </ul>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-          <Button onClick={handleReset} color="error" variant="contained">
-            Confirmar Limpeza
+          <Button onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
+          <Button onClick={handleClearData} color="error" variant="contained">
+            Limpar Dados
           </Button>
         </DialogActions>
       </Dialog>

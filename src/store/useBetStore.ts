@@ -20,6 +20,7 @@ interface BetStore {
     profit: number;
   };
   resetBets: () => void;
+  clearBets: () => void;
 }
 
 const validateBet = (bet: any): bet is Bet => {
@@ -99,6 +100,9 @@ export const useBetStore = create<BetStore>()(
         };
       },
       resetBets: () => set({ bets: [] }),
+      clearBets: () => {
+        set({ bets: [] });
+      },
     }),
     {
       name: 'bet-storage',

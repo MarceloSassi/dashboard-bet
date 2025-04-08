@@ -6,6 +6,7 @@ import ActiveBets from './pages/ActiveBets';
 import History from './pages/History';
 import Statistics from './pages/Statistics';
 import AddBet from './pages/AddBet';
+import Bank from './pages/Bank';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/history" element={<History />} />
             <Route path="/statistics" element={<Statistics />} />
             <Route path="/add-bet" element={<AddBet />} />
+            <Route path="/bank" element={<Bank />} />
           </Routes>
         </MainLayout>
       </Router>
