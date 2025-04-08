@@ -19,6 +19,7 @@ interface BetStore {
     winRate: number;
     profit: number;
   };
+  resetBets: () => void;
 }
 
 const validateBet = (bet: any): bet is Bet => {
@@ -97,6 +98,7 @@ export const useBetStore = create<BetStore>()(
           profit,
         };
       },
+      resetBets: () => set({ bets: [] }),
     }),
     {
       name: 'bet-storage',
